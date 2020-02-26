@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Engine/Includes/CGame.h"
-#include "Font/font.h"
+#include "CGame.h"
+#include "font/font.h"
 
 #define 	CRD_PILE			0
 #define 	CRD_FOUNDATION		1
