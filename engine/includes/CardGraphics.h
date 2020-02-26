@@ -9,7 +9,7 @@
 #ifndef CARDGRAPHICS_H
 #define CARDGRAPHICS_H
 
-#include "sdl/sdl.h"
+#include "SDL.h"
 #include "../includes/CCard.h"
 
 const unsigned int CRD_NSYMBOL	=	0;
