@@ -27,5 +27,5 @@ target_include_directories(libdrac PUBLIC
 
 target_link_libraries(libdrac ${SDL_LIBRARIES})
 
-add_executable(Klondike main.cpp font/font.cpp)
-target_link_libraries(Klondike libdrac)
+add_executable(klondike examples/klondike.cpp font/font.cpp)
+target_link_libraries(klondike libdrac)
