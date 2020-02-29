@@ -29,3 +29,6 @@ target_link_libraries(libdrac ${SDL_LIBRARIES})
 
 add_executable(klondike examples/klondike.cpp font/font.cpp)
 target_link_libraries(klondike libdrac)
+
+add_executable(bataille examples/bataille.cpp font/font.cpp)
+target_link_libraries(bataille libdrac)
