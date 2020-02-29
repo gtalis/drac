@@ -8,6 +8,7 @@ file(GLOB sources
 	engine/src/CCardRegion.cpp
 	engine/src/CCardStack.cpp
 	engine/src/CGame.cpp
+	engine/src/CCard.cpp
 )
 
 #-------------------------------------------------------------------------------

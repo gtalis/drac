@@ -57,6 +57,9 @@ public:
     int Suit() const			{ return ((Idx - ((Idx % 13) + 1)) / 10); }
     int Rank() const			{ return ((Idx % 13) + 1); }
 
+    const char* Suit_str();
+    const char* Rank_str();
+
     bool IsBlack() const 		{ return Suit() == 0 || Suit() == 2; }
     bool IsRed() const			{ return !IsBlack(); }
 
