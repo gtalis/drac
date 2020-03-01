@@ -18,10 +18,12 @@ file(GLOB sources
 # Dependencies
 #-------------------------------------------------------------------------------
 include(FindPkgConfig)
-# libdrm
+# SDL
 PKG_SEARCH_MODULE(SDL REQUIRED sdl)
+# SDL_ttf
+PKG_SEARCH_MODULE(SDL_TTF REQUIRED SDL_ttf)
 
-include_directories(${SDL_INCLUDE_DIRS})
+include_directories(${SDL_INCLUDE_DIRS} ${SDL_TTF_INCLUDE_DIRS})
 
 add_library(libdrac SHARED ${sources})
 target_include_directories(libdrac PUBLIC
@@ -29,7 +31,7 @@ target_include_directories(libdrac PUBLIC
                           "${PROJECT_SOURCE_DIR}/engine/includes"
                           )
 
-target_link_libraries(libdrac ${SDL_LIBRARIES})
+target_link_libraries(libdrac ${SDL_LIBRARIES} ${SDL_TTF_LIBRARIES})
 
 add_executable(klondike examples/klondike.cpp font/font.cpp)
 target_link_libraries(klondike libdrac)

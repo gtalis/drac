@@ -10,8 +10,10 @@
 #define CGAME_H
 
 #include <vector>
+#include <string>
 
 #include "CCardRegion.h"
+#include "SDL_ttf.h"
 
 typedef std::vector<CCardRegion>::iterator rVI;
 
@@ -21,6 +23,23 @@ struct DRAGCARD
 	int y;
 	int width;
 	int height;
+};
+
+class CTextField
+{
+	SDL_Surface *textSurface;
+	SDL_Surface *destSurface;
+	SDL_Color 	fontColor;
+	std::string	text;
+	SDL_Rect offset;
+	TTF_Font *font;
+
+public:
+	CTextField(int x, int y, SDL_Surface *dest, TTF_Font *font);
+	~CTextField() {}
+	void setTextFieldText(std::string text);
+	void Draw();
+	void FreeTextField();
 };
 
 class CGame : public std::vector<CCardRegion>
@@ -35,6 +54,8 @@ public:
   		screen = s;
 		background = SDL_CreateRGBSurface(SDL_SWSURFACE, screen->w, screen->h, 32, 0, 0, 0, 0);
 		//initialize more values here
+
+		InitText();
     }
 
 	void Clear()	{ this->clear(); }
@@ -48,6 +69,10 @@ public:
 
    	void EmptyStacks();
 	void InitAllCoords();
+
+	int InitText();
+	void CreateTextField (int *id, int x, int y);
+	void SetTextField(int id, std::string text);
 
 //----------------------------------------------------------------------------------------
 //Drag and Drop
@@ -83,6 +108,9 @@ private:
 	SDL_Surface *screen;
 	SDL_Surface *background;
 	SDL_Surface *dragface;
+
+	TTF_Font *textFont;
+	std::vector <CTextField> textFields;
 
 	DRAGCARD dcard;
 

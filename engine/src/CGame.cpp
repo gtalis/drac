@@ -12,6 +12,7 @@
 void CGame::CreateRegion(int id, unsigned int attribs, unsigned int amode, int dmode, int symbol, int x, int y, int xoffset, int yoffset)
 {
     CCardRegion *cr = new CCardRegion(id, attribs, amode, dmode, symbol, x, y, xoffset, yoffset);
+    printf("Created card region %p\n", cr);
 	this->push_back(*cr);
 }
 
@@ -274,6 +275,10 @@ void CGame::DrawStaticScene()
 		vi->DrawCardStack();
 	}
 
+	for (auto tf : textFields) {
+		tf.Draw();
+	}
+
 	SDL_Flip(screen);
 }
 
@@ -317,3 +322,75 @@ void CGame::AnimateRegions(int Id)
 	}
 }
 */
+
+int CGame::InitText()
+{
+	//Initialize SDL_ttf
+    if( TTF_Init() == -1 ) {
+    	printf("Failed to Init SDL TTF\n");
+        return -1;    
+    }
+    
+    // Open the font
+    textFont = TTF_OpenFont( "font/data/Arial_Black.ttf", 28 ); 
+    //If there was an error in loading the font
+    if( textFont == NULL ) {
+    	printf("Failed to Init SDL TTF font\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+void CGame::CreateTextField (int *id, int x, int y)
+{
+	CTextField textf (x, y, screen, textFont);
+	textFields.push_back(textf);
+
+	*id = static_cast <int> (textFields.size() - 1);
+}
+
+void CGame::SetTextField(int id, std::string text)
+{
+	textFields.at(id).setTextFieldText(text);
+}
+
+CTextField::CTextField(int inX, int inY, SDL_Surface *dest, TTF_Font *font)
+{
+	// Text surface
+	textSurface = NULL;
+
+	// Text color
+	fontColor.r = 255;
+	fontColor.g = 255;
+	fontColor.b = 255;
+
+	// Text offset
+	offset.x = inX;
+	offset.y = inY;
+
+	// Dest surface
+	destSurface = dest;
+
+	// Text font
+	this->font = font;
+}
+
+void CTextField::setTextFieldText(std::string text)
+{
+	free (textSurface);
+ 	textSurface = TTF_RenderText_Solid( font, text.c_str(), fontColor );
+
+}
+
+void CTextField::Draw()
+{
+    //Blit
+    SDL_BlitSurface( textSurface, NULL, destSurface, &offset );	
+}
+
+void CTextField::FreeTextField()
+{
+
+}
+
