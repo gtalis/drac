@@ -48,6 +48,8 @@ public:
 	int getNumOfCardsInHand()		{ return game->at(startId).Size(); }
 	CCardStack *getHandCardStack()	{ return game->at(startId).GetCardStack(); }
 
+	void clearPlayedPile()			{ game->at(startId + 1).Clear(); }
+
 private:
 	CGame *game;
 	int startId;
@@ -79,7 +81,7 @@ void Player::initialize(CGame *game, int startId, BatailleCardsRegions_t *handRe
 	// Create region for "played" pile
 	game->CreateRegion(
 			startId + 1,
-			CRD_VISIBLE|CRD_3D,
+			CRD_VISIBLE|CRD_FACEUP,
 			CRD_DOALL,
 			0,
 			CRD_OSYMBOL,
@@ -122,10 +124,12 @@ public:
 	void TestCardStack();
 
 	void playOneTrick(CCardStack *trick);
+	void clearPlayedPiles();
 	uint8_t getTrickWinner(CCardStack *trick);
 	void playOneRound(CCardStack *trick);
 
 	bool isGameOver();
+	CGame *getGame() { return &game; }
 
 private:
 	std::vector<Player> players;
@@ -146,7 +150,7 @@ Bataille::~Bataille()
 void Bataille::initialize(SDL_Surface *screen)
 {
 	//this->screen = screen;
-	game.Initialize(screen);	
+	game.Initialize(screen);
 
 	// Create Players
 	for (int p = 0; p < NUM_PLAYERS; p++) {
@@ -169,6 +173,7 @@ void Bataille::resetGame()
 		players[1].pushToHand(players[0].getOneCardFromHand());
 	}
 
+#ifdef DEBUG
 	for (int i = 0; i < NUM_PLAYERS; i++) {
 		printf("Player %d cards: %d\n", i, players[i].getNumOfCardsInHand());
 
@@ -179,12 +184,14 @@ void Bataille::resetGame()
 
 		printf("===============================================\n");
 	}
+#endif
 
     // initialize all card coordinates
 	game.InitAllCoords();
-	game.DrawStaticScene();	
+	game.DrawStaticScene();
 }
 
+#include <unistd.h>
 void Bataille::playOneRound(CCardStack *trick)
 {
 	// A round is a set of tricks.
@@ -201,6 +208,7 @@ void Bataille::playOneRound(CCardStack *trick)
 		if (trickwinner != 2) {
 			round_done = 1;
 		} else {
+			sleep(1);
 			// BATTLE: both players play again if they both still have cards left
 			if (isGameOver()) {
 				round_done = 1;
@@ -209,9 +217,19 @@ void Bataille::playOneRound(CCardStack *trick)
 	} // while (!round_done)
 
 	if (trickwinner < 2) {
+		sleep(1);
 		// Push all played cards to winner's hand
 		players[trickwinner].pushToHand(*trick);
 	}
+
+	printf("Round done: \n");
+	printf("Player 1 has now have %d cards in hand\n", players[0].getNumOfCardsInHand());
+	printf("Player 2 has now have %d cards in hand\n", players[1].getNumOfCardsInHand());
+
+	// Refresh scene
+	clearPlayedPiles();
+	game.InitAllCoords();
+	game.DrawStaticScene();
 }
 
 
@@ -222,6 +240,17 @@ void Bataille::playOneTrick(CCardStack *trick)
 		CCard card = players[p].playOneCard();
 		trick->Push(card);
 	}
+
+	printf ("Drawing static scene\n");
+	game.InitAllCoords();
+	game.DrawStaticScene();
+}
+
+
+void Bataille::clearPlayedPiles()
+{
+	for (auto p : players)
+		p.clearPlayedPile();
 }
 
 uint8_t Bataille::getTrickWinner(CCardStack *trick)
@@ -285,6 +314,31 @@ void Bataille::simulate()
 	}	
 }
 
+
+
+void HandleMouseDownEvent(SDL_Event &event, Bataille *b)
+{
+	CCardRegion *srcReg;
+	CGame *g = b->getGame();
+
+	if (event.button.button == SDL_BUTTON_LEFT) {
+		printf("calling on mouse down\n");
+		srcReg = g->OnMouseDown(event.button.x, event.button.y);
+		if (srcReg == NULL) {
+			printf("src reg is NULL\n");
+			return;
+		}
+
+		if (srcReg->Id == 0) {
+			printf ("Clicked on player 1 hand pile\n");
+			CCardStack trick;
+			b->playOneRound(&trick);
+		}
+	}
+}
+
+
+
 static void initGraphics (SDL_Surface **screen, 	SDLFont **font1, SDLFont **font2)
 {
 	if (SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO) < 0 ) {
@@ -323,7 +377,7 @@ int main(int argc, char *argv[])
 	SDL_Event event;
 	int done = 0;
 
-	b.simulate();
+	//b.simulate();
 
 	while(done == 0)
 	{
@@ -340,7 +394,7 @@ int main(int argc, char *argv[])
          			break;
 
 				case SDL_MOUSEBUTTONDOWN:
-					//HandleMouseDownEvent(event);
+					HandleMouseDownEvent(event, &b);
   					break;
 
 				case SDL_MOUSEMOTION:
