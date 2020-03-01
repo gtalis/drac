@@ -37,7 +37,7 @@ void fontDrawIMG(SDL_Surface *screen, SDL_Surface *img, int x, int y, int w,
 }
 
 // this function loads in our font file
-SDLFont *initFont(char *fontdir, float r, float g, float b, float a)
+SDLFont *initFont(const char *fontdir, float r, float g, float b, float a)
 {
   // some variables
   SDLFont *tempFont;               // a temporary font

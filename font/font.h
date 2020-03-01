@@ -25,11 +25,11 @@ struct SDLFont
 // Function prototypes
 
 // This function initalizes a font
-SDLFont *initFont(char *fontdir, float r, float g, float b, float a);
+SDLFont *initFont(const char *fontdir, float r, float g, float b, float a);
 
 // Some overloaded functions to make your life easier
-inline SDLFont *initFont(char *fontdir, float r, float g, float b) { return initFont(fontdir, r,g,b,1); }
-inline SDLFont *initFont(char *fontdir) { return initFont(fontdir, 1,1,1,1); }
+inline SDLFont *initFont(const char *fontdir, float r, float g, float b) { return initFont(fontdir, r,g,b,1); }
+inline SDLFont *initFont(const char *fontdir) { return initFont(fontdir, 1,1,1,1); }
 
 // This function draws a string
 void drawString(SDL_Surface *screen, SDLFont *font, int x, int y, char *str,...);
