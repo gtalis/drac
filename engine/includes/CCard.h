@@ -10,6 +10,8 @@
 #ifndef CCARD_H
 #define CCARD_H
 
+#include <iostream>
+
 // if will be using custom cards then these should be initialized outside
 const unsigned int CARDWIDTH	=	73;
 const unsigned int CARDHEIGHT	=	97;
@@ -80,6 +82,11 @@ public:
 		else
 			return false;
 	}
+
+    friend std::ostream &operator<<( std::ostream &output, CCard &c ) { 
+         output << c.Rank_str() << " of " << c.Suit_str();
+         return output;            
+    }
 
 /*	These should be private, but i think it's
 	faster if they can be accessed directly,
