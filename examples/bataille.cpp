@@ -26,6 +26,12 @@ static BatailleCardsRegions_t regions [MAX_PLAYERS * 2] =
 	{ SCREEN_WIDTH - CARDWIDTH*2 - 80, (SCREEN_HEIGHT - CARDHEIGHT) / 2, 2, 2}, // Player 2 "played" card region
 };
 
+static BatailleCardsRegions_t textFieldsPositions [MAX_PLAYERS] =
+{
+	{ 40, (SCREEN_HEIGHT - CARDHEIGHT) / 2 + CARDHEIGHT + 40, 0, 0},
+	{ SCREEN_WIDTH - 300, (SCREEN_HEIGHT - CARDHEIGHT) / 2 + + CARDHEIGHT + 40, 0, 0},
+};
+
 /* A Bataille Player handles two piles:
 	- his hand
 	- the cards she/he plays
@@ -118,23 +124,23 @@ public:
 
 	void initialize(SDL_Surface *screen);
 	void resetGame();
-	void startNewGame();
-	void simulate();
-
-	void TestCardStack();
-
-	void playOneTrick(CCardStack *trick);
-	void clearPlayedPiles();
-	uint8_t getTrickWinner(CCardStack *trick);
 	void playOneRound(CCardStack *trick);
 
 	bool isGameOver();
 	CGame *getGame() { return &game; }
 
+	void simulate();
+
+private:
+	void playOneTrick(CCardStack *trick);
+	void clearPlayedPiles();
+	uint8_t getTrickWinner(CCardStack *trick);
+	void UpdateScore();
+
 private:
 	std::vector<Player> players;
 	CGame game;
-	//SDL_Surface *screen;
+	std::vector<int> playersTextFields;
 };
 
 
@@ -152,11 +158,17 @@ void Bataille::initialize(SDL_Surface *screen)
 	//this->screen = screen;
 	game.Initialize(screen);
 
-	// Create Players
+	// Create Players & associated data
 	for (int p = 0; p < NUM_PLAYERS; p++) {
 		Player *player = new Player;
 		player->initialize(&game, p*2, &regions[p*2], &regions[p*2 + 1]);
 		players.push_back(*player);
+
+		// Create Text field that will hold the number of cards remaining
+		// in each player's hand
+		int p1tf_id;
+		game.CreateTextField(&p1tf_id, textFieldsPositions[p].x, textFieldsPositions[p].y);
+		playersTextFields.push_back(p1tf_id);
 	}
 }
 
@@ -187,6 +199,7 @@ void Bataille::resetGame()
 #endif
 
     // initialize all card coordinates
+	UpdateScore();
 	game.InitAllCoords();
 	game.DrawStaticScene();
 }
@@ -228,6 +241,7 @@ void Bataille::playOneRound(CCardStack *trick)
 
 	// Refresh scene
 	clearPlayedPiles();
+	UpdateScore();
 	game.InitAllCoords();
 	game.DrawStaticScene();
 }
@@ -283,8 +297,23 @@ bool Bataille::isGameOver()
 	return  ((players[0].isHandEmpty()) || (players[1].isHandEmpty()));
 }
 
-void Bataille::startNewGame()
+
+void Bataille::UpdateScore()
 {
+	const char *PLAYER_STR = "Player ";
+	const char *COLON_STR = ": ";
+	const char *CARDS_STR = " cards";
+
+	for (int p = 0; p < NUM_PLAYERS; p++) {
+		std::string text = PLAYER_STR;
+		text += std::to_string ( p + 1);
+		text += COLON_STR;
+		text += std::to_string (players[p].getNumOfCardsInHand());
+		text += CARDS_STR;
+
+		game.SetTextField(playersTextFields[p], text);
+
+	}
 }
 
 void Bataille::simulate()
